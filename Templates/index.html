@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Joginho Massa - AI Text Adventure</title>
+<style>
+    @keyframes slideInFromBottom {
+    0% {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+    100% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+    }
+
+    body {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        height: 100vh;
+        margin: 0;
+        font-family: Arial, sans-serif;
+    }
+
+    #textContainer {
+        display: flex;
+        flex-direction: column-reverse;
+        overflow-y: auto;
+        padding: 20px;
+        height: 80vh;
+        background-color: #f4f4f4;
+        border-top: 1px solid #ddd;
+    }
+
+    .message {
+        padding: 10px;
+        margin: 5px 0;
+        background-color: #e1e1e1;
+        border-radius: 4px;
+        overflow-wrap: break-word;
+        animation: slideInFromBottom 0.5s ease-out forwards;
+    }
+
+    .ai-input {
+        background-color: #5E81FF;
+        color: white;
+    }
+
+    #inputContainer {
+        display: flex;
+        padding: 10px;
+        background-color: #ddd;
+        border-top: 1px solid #bbb;
+    }
+
+    #inputField {
+        flex: 1;
+        padding: 10px;
+        font-size: 16px;
+    }
+
+    #submitButton {
+        padding: 10px 15px;
+        font-size: 16px;
+        margin-left: 10px;
+        cursor: pointer;
+    }
+</style>
+</head>
+<body>
+
+<div id="textContainer"></div>
+
+<div id="inputContainer">
+    <input type="text" id="inputField" placeholder="Enter text here">
+    <button id="submitButton">Submit</button>
+</div>
+
+<script>
+    function lowercaseFirstChar(str) {
+    if (!str) return str;
+
+    return str.charAt(0).toLowerCase() + str.slice(1);
+    }
+
+    const textContainer = document.getElementById('textContainer');
+    const inputField = document.getElementById('inputField');
+    const submitButton = document.getElementById('submitButton');
+
+    submitButton.addEventListener('click', () => {
+        const text = inputField.value.trim();
+        if (text) {
+            const message = document.createElement('div');
+            message.className = 'message';
+            message.textContent = "> You " + lowercaseFirstChar(text);
+            textContainer.insertBefore(message, textContainer.firstChild);
+            inputField.disabled = true;
+            inputField.value = '';
+            fetchData();
+        }
+    });
+
+    inputField.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') submitButton.click();
+    });
+
+    function fetchData() {
+        fetch('/get_data')
+            .then(response => response.json())
+            .then(data => {
+                // Update the HTML element with data from the backend
+                create_AI_response(data.message);
+            })
+            .catch(error => console.error('Error:', error));
+    }
+
+    function create_AI_response(message) {
+            const message_ai_teste = document.createElement('div');
+            message_ai_teste.className = 'message ai-input';
+            message_ai_teste.textContent = message;
+            textContainer.insertBefore(message_ai_teste, textContainer.firstChild);
+            inputField.disabled = false;
+    }
+</script>
+
+</body>
+</html>
