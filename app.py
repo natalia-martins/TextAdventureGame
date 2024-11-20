@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, render_template
+from flask import Flask, jsonify, render_template, request
 import time
 import random
 
@@ -32,6 +32,8 @@ def main_page():
 # This function will be the one to provide the user's answer to the AI and give the UI a response.
 @app.route('/get_data', methods=['GET'])
 def get_data():
+    name = request.args.get('name')
+    print(name)
     ##################################
     # Test                           #
     data = {'message': get_random_string(), 'status': 'success'}
