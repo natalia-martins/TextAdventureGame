@@ -106,7 +106,7 @@
         margin-left: 250px;
     }
 
-    #textContainer {
+    .textContainer {
         display: flex;
         flex-direction: column-reverse;
         overflow-y: auto;
@@ -152,6 +152,24 @@
         margin-left: 10px;
         cursor: pointer;
     }
+
+    .nameField {
+        background-color: #212121;
+        border: none;
+        font-size: large;
+        color: white;
+        margin-left: 5%;
+    }
+
+    .choice-class{
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .choice-class:hover {
+        background-color: #e1e1e1;
+        color: #212121;
+    }
 </style>
 </head>
 <body>
@@ -168,11 +186,36 @@
     <a href="#chat">Chat3</a>
 </div>
 
-<div class="main-content" id="mainContent">
-    <div id="textContainer">
-        <div class="message ai-input">In the graying twilight of a drizzly autumn evening, a solitary figure stood at the crest of a weathered hill. The landscape below unfurled like a tapestry of muted emeralds and russet, the sprawling vale bordered by shadowy, ancient woods whispering secrets of forgotten times. Loric, a lone wanderer clad in a cloak the color of storm clouds, gazed out over this cresting wave of earth and nature with eyes that mirrored the shifting sky—stormy, yet with shards of determined light piercing through.<br /> <br />A chill breeze, sharp as a whetted blade, swept through, ruffling the edges of his cloak and teasing the tousled strands of his raven hair that fell into his contemplative brow. With a practiced hand, he tugged the woolen fabric closer around his shoulders, savoring its warmth against the encroaching bite of the season. In his other hand, he clutched a well-worn staff, its once-smooth wood now marred by the tales of miles traveled and the ghosts of battles survived.<br /><br />Loric’s journey had carried him through crumbling ruins where shadows breathed in the silence, across plains kissed by the sun’s embrace, and over treacherous mountain passes that held the very breath of winter in their rigid grasp. Each step was a story, each scar, a testament. Yet, there was a purpose that coursed like a relentless river beneath the surface of his wandering—a purpose drawn from whispers of prophecy, rumors of a realm teetering on the edge of oblivion, and the faintest hints of a lineage long untold.<br /><br />Below, nestled snugly beneath the embrace of the hills, a village began to stir to life under the veil of early dusk. Flickering torchlights winked like fireflies as the villagers busied themselves, unaware of the lone traveler overlooking their peaceful existence. Smoke curled from hearths, weaving into the tapestry of the sky, carrying with it the scent of home and hearth—reminders of a life that Loric had yet to claim.<br /><br />He had heard the tales, woven by bards and storytellers, of a sacred artifact hidden deep within the ruins of the Lost Keep—a talisman said to hold the power to unmock the bonds of chaos threatening to spill over the land. It was toward this enigma that Loric's journey was now bent, an adventure unfurling like a skein of fate through the unfamiliar paths ahead. But first, a rest was needed—a night among strangers who might yet become allies. With a deep breath, Loric started down the hill, step by steadfast step, toward the village cradled in the heart of the valley, ready to embrace whatever this rumorous night might reveal.</div>
+<div class="main-content" id="choiceContent">
+    <div class="textContainer" id="choiceContainer">
+        <div class="message ai-input">What is your name?
+            <input type="text" id="nameField" class="nameField" placeholder="Loric">
+        </div>
     </div>
+</div>
 
+<div class="main-content" id="classContent" style="visibility: hidden; display: none;">
+    <div class="textContainer" id="classContainer">
+        <div class="message ai-input choice-class" id="warrior">Warrior
+        </div>
+        <div class="message ai-input choice-class" id="wizard">Wizard
+        </div>
+        <div class="message ai-input choice-class" id="druid">Druid
+        </div>
+        <div class="message ai-input choice-class" id="rogue">Rogue
+        </div> 
+        <div class="message ai-input choice-class" id="jeff">Jeff
+        </div>
+        <div class="message ai-input choice-class" id="paladin">Paladin
+        </div>
+        <div class="message ai-input" >What is your class?
+        </div>
+    </div>
+</div>
+
+<div class="main-content" id="mainContent" style="visibility: hidden; display: none;">
+    <div id="textContainer" class="textContainer">
+    </div>
     <div id="inputContainer">
         <input type="text" id="inputField" placeholder="Enter text here">
         <button id="submitButton">Submit</button>
@@ -180,9 +223,25 @@
 </div>
 
 <script>
+    const warrior = document.getElementById('warrior');
+    const rogue = document.getElementById('rogue');
+    const druid = document.getElementById('druid');
+    const wizard = document.getElementById('wizard');
+    const jeff = document.getElementById('jeff');
+    const paladin = document.getElementById('paladin');
+
+    warrior.addEventListener('click', () => {send_info("warrior")});
+    rogue.addEventListener('click', () => {send_info("rogue")});
+    druid.addEventListener('click', () => {send_info("druid")});
+    wizard.addEventListener('click', () => {send_info("wizard")});
+    jeff.addEventListener('click', () => {send_info("jeff")});
+    paladin.addEventListener('click', () => {send_info("paladin")});
+
     const toggleButton = document.getElementById('toggleButton');
     const sidebar = document.getElementById('sidebar');
     const mainContent = document.getElementById('mainContent');
+    const choiceContent = document.getElementById('choiceContent');
+    const classContent = document.getElementById('classContent');
 
     toggleButton.addEventListener('click', () => {
         sidebar.classList.toggle('visible');
@@ -197,6 +256,8 @@
     const textContainer = document.getElementById('textContainer');
     const inputField = document.getElementById('inputField');
     const submitButton = document.getElementById('submitButton');
+    const nameField = document.getElementById('nameField');
+    info = "";
 
     submitButton.addEventListener('click', () => {
         const text = inputField.value.trim();
@@ -206,7 +267,6 @@
             message.textContent = "> You " + lowercaseFirstChar(text);
             textContainer.insertBefore(message, textContainer.firstChild);
             inputField.disabled = true;
-            inputField.value = '';
             fetchData();
         }
     });
@@ -215,9 +275,33 @@
         if (e.key === 'Enter') submitButton.click();
     });
 
+    nameField.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') hide_name_content();
+    });
+
+    function hide_name_content() {
+        choiceContent.style.visibility = "hidden";
+        choiceContent.style.display = "none";
+
+        classContent.style.visibility = "visible";
+        classContent.style.display = "block"
+    }
+
+    function send_info(classe) {
+        classContent.style.visibility = "hidden";
+        classContent.style.display = "none";
+
+        mainContent.style.visibility = "visible";
+        mainContent.style.display = "block"
+        
+        info = nameField.value + "|" + classe;
+        fetchData();
+    }
+ 
     function fetchData() {
-        const name = 'Teste';
-        fetch(`/get_data?name=${encodeURIComponent(name)}`)
+        const name = inputField.value;
+        inputField.value = '';
+        fetch(`/get_data?name=${encodeURIComponent(name)}&info=${encodeURIComponent(info)}`)
             .then(response => response.json())
             .then(data => {
                 create_AI_response(data.message);

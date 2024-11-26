@@ -1,7 +1,7 @@
 from flask import Flask, jsonify, render_template, request
-import time
-import random
+from config import call_audio
 from ai_interaction import ai_request
+import threading
 
 stories = {"warrior": {"story": "The dragon has been terrorizing the countryside, its fiery breath leaving villages in ruins. The people have turned to you, their last hope, to slay the beast. Clad in armor, sword and shield in hand you go up the mountain to the Dragon's Lair. What will you do?", "context": " The user is very athletic and strong, but cannot use magic."},
            "rogue": {"story": "The King's Crown sits atop a golden pedestal, locked away in a heavily guarded tower. It is said to be the key to a rebellion long overdue. You stand menacingly atop the king's castle, staring at the tower in the distance. What will you do?", "context": "The user is very stealthy, but weak and ugly."},
@@ -51,6 +51,8 @@ def get_data():
         add_history_input(user_input, "user")
         answer = ai_request(history)
         data = {'message': answer.content, 'status': 'success'}
+
+        threading.Thread(target=call_audio, args=(answer.content,)).start()
         # data = {'message': "haha", 'status': 'success'}
 
     return jsonify(data)
