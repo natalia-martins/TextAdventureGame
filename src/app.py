@@ -4,8 +4,8 @@ from src.ai_interaction import ai_request
 import threading
 
 
-def add_history_input(input_, role):
-    history.append({"role": role, "content": input_})
+def add_history_input(input_, role, current_key_):
+    user_stories[str(current_key_)].append({"role": role, "content": input_})
 
 
 stories = {
@@ -48,6 +48,8 @@ history = [
     },
 ]
 
+user_stories = {}
+
 name = ""
 
 app = Flask(__name__)
@@ -64,20 +66,22 @@ def main_page():
 def get_data():
     global name
     user_input = request.args.get("name")
+    current_key = request.args.get("story")
     if name == "":
         name = request.args.get("info").split("|")[0]
         classe = request.args.get("info").split("|")[1]
+        user_stories[str(current_key)] = history
 
-        history[1]["content"] = "You are " + name + ". " + stories[classe]["story"]
-        history[0]["content"] += stories[classe]["context"]
-        history[0]["content"] = history[0]["content"].replace("{{user}}", name)
-        data = {"message": history[1]["content"], "status": "success"}
+        user_stories[str(current_key)][1]["content"] = "You are " + name + ". " + stories[classe]["story"]
+        user_stories[str(current_key)][0]["content"] += stories[classe]["context"]
+        user_stories[str(current_key)][0]["content"] = history[0]["content"].replace("{{user}}", name)
+        data = {"message": user_stories[str(current_key)][1]["content"], "status": "success"}
     else:
-        add_history_input(user_input, "user")
+        add_history_input(user_input, "user", current_key)
         answer = ai_request(history)
         data = {"message": answer.content, "status": "success"}
 
-        threading.Thread(target=call_audio, args=(answer.content,)).start()
+        # threading.Thread(target=call_audio, args=(answer.content,)).start()
         # data = {'message': "haha", 'status': 'success'}
 
     return jsonify(data)
