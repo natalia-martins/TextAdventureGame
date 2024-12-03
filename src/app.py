@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 from flask import Flask, jsonify, render_template, request
 from src.config import call_audio
 from src.ai_interaction import ai_request
@@ -5,7 +7,7 @@ import threading
 
 
 def add_history_input(input_, role, current_key_):
-    user_stories[str(current_key_)].append({"role": role, "content": input_})
+    user_stories[str(current_key_)]["history"].append({"role": role, "content": input_})
 
 
 stories = {
@@ -50,8 +52,6 @@ history = [
 
 user_stories = {}
 
-name = ""
-
 app = Flask(__name__)
 
 
@@ -64,26 +64,27 @@ def main_page():
 # This function will be the one to provide the user's answer to the AI and give the UI a response.
 @app.route("/get_data", methods=["GET"])
 def get_data():
-    global name
     user_input = request.args.get("name")
     current_key = request.args.get("story")
-    if name == "":
+    if current_key not in user_stories.keys():
+        aux_history = deepcopy(history)
         name = request.args.get("info").split("|")[0]
         classe = request.args.get("info").split("|")[1]
-        user_stories[str(current_key)] = history
+        user_stories[str(current_key)] = {"name": name, "history": aux_history}
 
-        user_stories[str(current_key)][1]["content"] = "You are " + name + ". " + stories[classe]["story"]
-        user_stories[str(current_key)][0]["content"] += stories[classe]["context"]
-        user_stories[str(current_key)][0]["content"] = history[0]["content"].replace("{{user}}", name)
-        data = {"message": user_stories[str(current_key)][1]["content"], "status": "success"}
+        user_stories[str(current_key)]["history"][1]["content"] = "You are " + name + ". " + stories[classe]["story"]
+        user_stories[str(current_key)]["history"][0]["content"] += stories[classe]["context"]
+        user_stories[str(current_key)]["history"][0]["content"] = aux_history[0]["content"].replace("{{user}}", name)
+        data = {"message": user_stories[str(current_key)]["history"][1]["content"], "status": "success"}
     else:
         add_history_input(user_input, "user", current_key)
-        answer = ai_request(history)
+        answer = ai_request(user_stories[str(current_key)]["history"])
         data = {"message": answer.content, "status": "success"}
 
         # threading.Thread(target=call_audio, args=(answer.content,)).start()
         # data = {'message': "haha", 'status': 'success'}
 
+    print(user_stories.keys())
     return jsonify(data)
 
 
