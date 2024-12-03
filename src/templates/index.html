@@ -229,6 +229,7 @@
     const wizard = document.getElementById('wizard');
     const jeff = document.getElementById('jeff');
     const paladin = document.getElementById('paladin');
+    const story = crypto.randomUUID();
 
     warrior.addEventListener('click', () => {send_info("warrior")});
     rogue.addEventListener('click', () => {send_info("rogue")});
@@ -301,7 +302,7 @@
     function fetchData() {
         const name = inputField.value;
         inputField.value = '';
-        fetch(`/get_data?name=${encodeURIComponent(name)}&info=${encodeURIComponent(info)}`)
+        fetch(`/get_data?name=${encodeURIComponent(name)}&info=${encodeURIComponent(info)}&story=${encodeURIComponent(story)}`)
             .then(response => response.json())
             .then(data => {
                 create_AI_response(data.message);
