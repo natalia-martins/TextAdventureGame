@@ -82,7 +82,6 @@ def get_data():
         data = {"message": answer.content, "status": "success"}
 
         # threading.Thread(target=call_audio, args=(answer.content,)).start()
-        # data = {'message': "haha", 'status': 'success'}
 
     print(user_stories.keys())
     return jsonify(data)
